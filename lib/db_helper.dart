@@ -66,5 +66,22 @@ class DBHelper {
     return await db.query(noteTable);
   }
   /// update
+  Future<bool> updateNote({required String title, required String desc, required int id}) async{
+    var db = await initDB();
+
+    int rowsEffected = await db.update(noteTable, {
+      columnNoteTitle : title,
+      columnNoteDesc : desc,
+    }, where: "$columnNoteId = $id");
+
+    return rowsEffected>0;
+
+  }
   /// delete
+  Future<bool> deleteNote({required int id}) async{
+
+    var db = await initDB();
+    int rowsEffected = await db.delete(noteTable, where: "$columnNoteId = ?", whereArgs: ["$id"] );
+    return rowsEffected>0;
+  }
 }
