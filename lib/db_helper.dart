@@ -42,6 +42,7 @@ class DBHelper {
         db.execute(
           "create table $noteTable ( $columnNoteId integer primary key autoincrement, $columnNoteTitle text, $columnNoteDesc text, $columnNoteCreatedAt text )",
         );
+        //6*20 = 120
       },
     );
   }
@@ -79,7 +80,6 @@ class DBHelper {
   }
   /// delete
   Future<bool> deleteNote({required int id}) async{
-
     var db = await initDB();
     int rowsEffected = await db.delete(noteTable, where: "$columnNoteId = ?", whereArgs: ["$id"] );
     return rowsEffected>0;

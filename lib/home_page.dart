@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:db_exp_422/add_note_page.dart';
 import 'package:db_exp_422/db_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -14,7 +17,6 @@ class _HomePageState extends State<HomePage> {
   TextEditingController titleController = TextEditingController();
   TextEditingController descController = TextEditingController();
   DateFormat df = DateFormat.yMMMEd();
-
 
   @override
   void initState() {
@@ -39,14 +41,28 @@ class _HomePageState extends State<HomePage> {
                 itemCount: mNotes.length,
                 itemBuilder: (_, index) {
                   return Card(
+                    color: Colors
+                        .primaries[Random().nextInt(Colors.primaries.length)],
                     child: ListTile(
                       leading: Text("${index + 1}"),
                       title: Text(mNotes[index][DBHelper.columnNoteTitle]),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(mNotes[index][DBHelper.columnNoteDesc]),
-                          Text(df.format(DateTime.fromMillisecondsSinceEpoch(int.parse(mNotes[index][DBHelper.columnNoteCreatedAt])))),
+                          Text(
+                            mNotes[index][DBHelper.columnNoteDesc],
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            df.format(
+                              DateTime.fromMillisecondsSinceEpoch(
+                                int.parse(
+                                  mNotes[index][DBHelper.columnNoteCreatedAt],
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                       trailing: Row(
@@ -54,20 +70,39 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           IconButton(
                             onPressed: () async {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) {
+                                    return AddNotePage(
+                                      isUpdate: true,
+                                      mId: mNotes[index][DBHelper.columnNoteId],
+                                      mTitle:
+                                          mNotes[index][DBHelper
+                                              .columnNoteTitle],
+                                      mDesc:
+                                          mNotes[index][DBHelper
+                                              .columnNoteDesc],
+                                    );
+                                  },
+                                ),
+                              );
 
-                              titleController.text = mNotes[index][DBHelper.columnNoteTitle];
+                              /* titleController.text = mNotes[index][DBHelper.columnNoteTitle];
                               descController.text = mNotes[index][DBHelper.columnNoteDesc];
                               showModalBottomSheet(
                                   context: context, builder: (_){
                                     return myBottomSheet(isUpdate: true, mId: mNotes[index][DBHelper.columnNoteId]);
-                              });
+                              });*/
                             },
                             icon: Icon(Icons.edit),
                           ),
                           IconButton(
-                            onPressed: () async{
-                              bool isDeleted = await dbHelper!.deleteNote(id: mNotes[index][DBHelper.columnNoteId]);
-                              if(isDeleted){
+                            onPressed: () async {
+                              bool isDeleted = await dbHelper!.deleteNote(
+                                id: mNotes[index][DBHelper.columnNoteId],
+                              );
+                              if (isDeleted) {
                                 getAllNotes();
                               }
                             },
@@ -96,14 +131,23 @@ class _HomePageState extends State<HomePage> {
           : Center(child: Text('No Notes Found')),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          titleController.text = "";
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) {
+                return AddNotePage();
+              },
+            ),
+          );
+
+          /*titleController.text = "";
           descController.clear();
           showModalBottomSheet(
             context: context,
             builder: (c) {
               return myBottomSheet();
             },
-          );
+          );*/
         },
         child: Icon(Icons.add),
       ),
@@ -118,10 +162,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           Text(
             isUpdate ? 'Update Note' : 'Add Note',
-            style: TextStyle(
-              fontSize: 21,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 21),
           TextField(
@@ -148,10 +189,9 @@ class _HomePageState extends State<HomePage> {
             children: [
               OutlinedButton(
                 onPressed: () async {
-
                   bool isAddedOrUpdated = false;
 
-                  if(isUpdate){
+                  if (isUpdate) {
                     isAddedOrUpdated = await dbHelper!.updateNote(
                       title: titleController.text,
                       desc: descController.text,
@@ -164,11 +204,10 @@ class _HomePageState extends State<HomePage> {
                     );
                   }
 
-                  if(isAddedOrUpdated){
+                  if (isAddedOrUpdated) {
                     getAllNotes();
                     Navigator.pop(context);
                   }
-
                 },
                 child: Text('Save'),
               ),
@@ -185,5 +224,4 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
 }
